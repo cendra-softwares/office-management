@@ -14,11 +14,11 @@ class ResponsiveGrid extends StatelessWidget {
         crossAxisCount: Responsive.isMobile(context)
             ? 1
             : Responsive.isTablet(context)
-                ? 2
-                : 4,
+            ? 2
+            : 4,
         crossAxisSpacing: 16.0,
         mainAxisSpacing: 16.0,
-        childAspectRatio: 3 / 3,
+        childAspectRatio: 3 / 4,
       ),
       itemBuilder: (context, index) {
         return const ProjectCardWidget();
