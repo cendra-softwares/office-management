@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:office_management/core/theme/app_colors.dart';
+import 'package:office_management/features/dashboard/pages/dashboard_main_content.dart';
 import 'package:office_management/features/dashboard/widgets/nav_widget.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -58,7 +58,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           elevation: const WidgetStatePropertyAll(0.0),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
+                              borderRadius: BorderRadius.circular(16.0),
                             ),
                           ),
                           onChanged: (value) {
@@ -88,12 +88,14 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                       Expanded(
-                        child: Center(
-                          child: Text(
-                            'Selected Index: $_selectedIndex',
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ),
+                        child: _selectedIndex == 0
+                            ? const DashboardMainContent()
+                            : Center(
+                                child: Text(
+                                  'Selected Index: $_selectedIndex',
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -129,7 +131,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
                             children: [
-                              SizedBox(width: 20),
+                              SizedBox(width: 25),
                               Image.asset('assets/images/Logo.png'),
                               const Spacer(),
                               SizedBox(

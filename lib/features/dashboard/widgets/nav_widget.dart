@@ -25,7 +25,7 @@ class NavRail extends StatelessWidget {
       destinations: const <NavigationRailDestination>[
         NavigationRailDestination(
           icon: Icon(Icons.home),
-          label: Text('Home', style: TextStyle(fontSize: 25)),
+          label: Text('Projects', style: TextStyle(fontSize: 25)),
           padding: EdgeInsets.only(bottom: 10),
         ),
         NavigationRailDestination(
