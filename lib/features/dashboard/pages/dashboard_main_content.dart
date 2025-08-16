@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:office_management/core/theme/app_colors.dart';
+import 'package:office_management/features/dashboard/widgets/project_card_widget.dart';
 
 class DashboardMainContent extends StatelessWidget {
   const DashboardMainContent({super.key});
@@ -13,7 +14,19 @@ class DashboardMainContent extends StatelessWidget {
           color: AppColors.surfaceWhite,
           borderRadius: const BorderRadius.all(Radius.circular(16.0)),
         ),
-        child: const Center(child: Text('Projects Content')),
+        child: GridView.builder(
+          padding: const EdgeInsets.all(16.0),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            childAspectRatio: 3 / 2,
+          ),
+          itemCount: 6, // Display 6 cards for demonstration
+          itemBuilder: (context, index) {
+            return const ProjectCardWidget();
+          },
+        ),
       ),
     );
   }
