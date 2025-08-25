@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:office_management/core/theme/app_colors.dart';
-import 'package:office_management/core/theme/typography.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:office_management/features/login/pages/login_page.dart';
+import 'package:office_management/features/login/pages/signup_page.dart';
+import 'package:office_management/features/login/pages/auth_page.dart';
 import 'package:office_management/features/dashboard/pages/dashboard_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  );
   runApp(const MyApp());
 }
 
@@ -13,36 +22,23 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.backgroundLight,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.primaryLavender,
-          foregroundColor: AppColors.textInverse,
-          titleTextStyle: AppTypography.headline2,
-        ),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryLavender,
-          primary: AppColors.primaryLavender,
-          secondary: AppColors.secondaryTeal,
-          surface: AppColors.surfaceWhite,
-          onPrimary: AppColors.textInverse,
-          onSecondary: AppColors.textInverse,
-          onSurface: AppColors.textPrimary,
-          error: AppColors.error,
-          onError: AppColors.textInverse,
-        ),
-        textTheme: const TextTheme(
-          displayLarge: AppTypography.headline1,
-          headlineMedium: AppTypography.headline2,
-          bodyLarge: AppTypography.body1,
-          bodyMedium: AppTypography.body2,
-          labelLarge: AppTypography.button,
-          bodySmall: AppTypography.caption,
-        ),
-      ),
-      home: const DashboardPage(),
+    return ShadApp.custom(
+      themeMode: ThemeMode.light,
+      appBuilder: (context) {
+        return MaterialApp(
+          theme: Theme.of(context),
+          initialRoute: '/auth',
+          routes: {
+            '/auth': (context) => const AuthPage(),
+            '/login': (context) => const LoginPage(),
+            '/signup': (context) => const SignupPage(),
+            '/dashboard': (context) => const DashboardPage(),
+          },
+          builder: (context, child) {
+            return ShadAppBuilder(child: child);
+          },
+        );
+      },
     );
   }
 }

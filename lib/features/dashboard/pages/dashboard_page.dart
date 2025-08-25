@@ -1,62 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:office_management/core/utils/responsive.dart';
-import 'package:office_management/features/dashboard/pages/desktop_layout.dart';
-import 'package:office_management/features/dashboard/pages/mobile_layout.dart';
-import 'package:office_management/features/dashboard/pages/tablet_layout.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage> {
-  int _selectedIndex = 0;
-  bool _extended = false; // Add this state variable
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Responsive(
-      mobile: MobileLayout(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        searchController: _searchController,
+    final user = Supabase.instance.client.auth.currentUser;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await Supabase.instance.client.auth.signOut();
+              // Navigate back to login page
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/login');
+              }
+            },
+          ),
+        ],
       ),
-      tablet: TabletLayout(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        searchController: _searchController,
-      ),
-      desktop: DesktopLayout(
-        selectedIndex: _selectedIndex,
-        extended: _extended,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        onMenuButtonPressed: () {
-          setState(() {
-            _extended = !_extended;
-          });
-        },
-        searchController: _searchController,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Welcome to the Dashboard!'),
+            if (user != null) ...[
+              const SizedBox(height: 16),
+              Text('Email: ${user.email}'),
+            ],
+          ],
+        ),
       ),
     );
   }
