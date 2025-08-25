@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:office_management/core/services/supabase_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:office_management/features/dashboard/widgets/company_creation_dialog.dart';
 
 class SuperAdminDashboardPage extends StatefulWidget {
   const SuperAdminDashboardPage({super.key});
@@ -23,12 +24,16 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
 
   Future<void> _fetchUserRole() async {
     final user = Supabase.instance.client.auth.currentUser;
+    print('Current user in dashboard: ${user?.id}');
+    print('Current user email in dashboard: ${user?.email}');
     if (user != null) {
       try {
         final userProfile = await SupabaseService().getUserProfile(user.id);
+        print('User profile: $userProfile');
         if (userProfile != null) {
           setState(() {
             _userRole = userProfile['role'] as String?;
+            print('User role set to: $_userRole');
             _isLoading = false;
           });
         } else {
@@ -91,6 +96,16 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                 if (_userRole != null) ...[
                   const SizedBox(height: 8),
                   Text('Role: $_userRole'),
+                  const SizedBox(height: 16),
+                  ShadButton(
+                    child: const Text('Create Company'),
+                    onPressed: () {
+                      showShadDialog(
+                        context: context,
+                        builder: (context) => const CompanyCreationDialog(),
+                      );
+                    },
+                  ),
                 ],
               ],
             ],

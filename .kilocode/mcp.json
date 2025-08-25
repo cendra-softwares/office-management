@@ -13,7 +13,8 @@
       "alwaysAllow": [
         "get_project_url",
         "get_anon_key",
-        "execute_sql"
+        "execute_sql",
+        "list_tables"
       ]
     }
   }
