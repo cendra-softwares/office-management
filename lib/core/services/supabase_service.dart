@@ -24,4 +24,21 @@ class SupabaseService {
   Future<void> signOut() async {
     await client.auth.signOut();
   }
+
+  Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    try {
+      print('Fetching user profile for user ID: $userId');
+      final response = await client
+          .from('user_profiles')
+          .select()
+          .eq('id', userId)
+          .single();
+      print('User profile fetched successfully: $response');
+      return response;
+    } catch (e) {
+      // Handle error, e.g., user profile not found
+      print('Error fetching user profile for user ID: $userId. Error: $e');
+      return null;
+    }
+  }
 }

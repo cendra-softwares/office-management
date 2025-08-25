@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:office_management/features/dashboard/pages/dashboard_page.dart';
+import 'package:office_management/features/dashboard/pages/superadmin_dashboard_page.dart'; // Import SuperAdminDashboardPage
 import 'package:office_management/core/services/supabase_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -45,12 +46,32 @@ class _LoginPageState extends State<LoginPage> {
           _passwordController.text,
         );
         if (response.user != null) {
-          // Navigate to dashboard
-          if (mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const DashboardPage()),
-            );
+          // Fetch user profile to determine role
+          final userProfile = await SupabaseService().getUserProfile(response.user!.id);
+          if (userProfile != null) {
+            final userRole = userProfile['role'] as String?;
+            // Navigate based on role
+            if (mounted) {
+              if (userRole == 'superadmin') {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SuperAdminDashboardPage()),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DashboardPage()),
+                );
+              }
+            }
+          } else {
+            // Handle case where user profile is not found
+            if (mounted) {
+              setState(() {
+                _errorMessage = 'User profile not found.';
+                _showErrorAlert = true;
+              });
+            }
           }
         } else {
           // Show error message
@@ -80,7 +101,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ShadCard(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/Logo.png', height: 100),
+            const SizedBox(height: 20),
+            ShadCard(
           width: 350,
           title: const Text('Login'),
           child: ShadForm(
@@ -158,6 +184,8 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
+            ),
+          ],
         ),
       ),
     );

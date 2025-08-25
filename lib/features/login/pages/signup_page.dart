@@ -83,100 +83,108 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ShadCard(
-          width: 350,
-          title: const Text('Sign Up'),
-          child: ShadForm(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_showErrorAlert && _errorMessage != null)
-                  ShadAlert.destructive(
-                    iconData: LucideIcons.circleAlert,
-                    title: const Text('Error'),
-                    description: Text(_errorMessage!),
-                  ),
-                if (_showErrorAlert && _errorMessage != null)
-                  const SizedBox(height: 16),
-                ShadInputFormField(
-                  id: 'email',
-                  controller: _emailController,
-                  label: const Text('Email'),
-                  placeholder: const Text('Enter your email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/Logo.png', height: 100),
+            const SizedBox(height: 20),
+            ShadCard(
+              width: 350,
+              title: const Text('Sign Up'),
+              child: ShadForm(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_showErrorAlert && _errorMessage != null)
+                      ShadAlert.destructive(
+                        iconData: LucideIcons.circleAlert,
+                        title: const Text('Error'),
+                        description: Text(_errorMessage!),
+                      ),
+                    if (_showErrorAlert && _errorMessage != null)
+                      const SizedBox(height: 16),
+                    ShadInputFormField(
+                      id: 'email',
+                      controller: _emailController,
+                      label: const Text('Email'),
+                      placeholder: const Text('Enter your email'),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ShadInputFormField(
+                      id: 'password',
+                      controller: _passwordController,
+                      label: const Text('Password'),
+                      placeholder: const Text('Enter your password'),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ShadInputFormField(
+                      id: 'confirmPassword',
+                      controller: _confirmPasswordController,
+                      label: const Text('Confirm Password'),
+                      placeholder: const Text('Confirm your password'),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please confirm your password';
+                        }
+                        if (value != _passwordController.text) {
+                          return 'Passwords do not match';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    ShadButton(
+                      leading: _isLoading
+                          ? SizedBox.square(
+                              dimension: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: ShadTheme.of(
+                                  context,
+                                ).colorScheme.primaryForeground,
+                              ),
+                            )
+                          : const Icon(LucideIcons.mail),
+                      onPressed: _isLoading ? null : _handleSignup,
+                      child: Text(_isLoading ? 'Please wait' : 'Sign Up'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: const Text("Already have an account? Login"),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                ShadInputFormField(
-                  id: 'password',
-                  controller: _passwordController,
-                  label: const Text('Password'),
-                  placeholder: const Text('Enter your password'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                ShadInputFormField(
-                  id: 'confirmPassword',
-                  controller: _confirmPasswordController,
-                  label: const Text('Confirm Password'),
-                  placeholder: const Text('Confirm your password'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ShadButton(
-                  leading: _isLoading
-                      ? SizedBox.square(
-                          dimension: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: ShadTheme.of(context).colorScheme.primaryForeground,
-                          ),
-                        )
-                      : const Icon(LucideIcons.mail),
-                  onPressed: _isLoading ? null : _handleSignup,
-                  child: Text(_isLoading ? 'Please wait' : 'Sign Up'),
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  child: const Text("Already have an account? Login"),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
-

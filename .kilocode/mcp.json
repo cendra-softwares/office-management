@@ -10,7 +10,11 @@
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_1ed3f98dfffe0ff69f089242317086e874f2418a"
       },
-      "alwaysAllow": ["get_project_url", "get_anon_key"]
+      "alwaysAllow": [
+        "get_project_url",
+        "get_anon_key",
+        "execute_sql"
+      ]
     }
   }
 }
