@@ -108,7 +108,7 @@ class ProjectCreationDialog extends HookConsumerWidget {
             Navigator.of(context).pop();
           },
         ),
-        ShadButton(child: const Text('Create'), onPressed: saveProject),
+        ShadButton(onPressed: saveProject, child: const Text('Create')),
       ],
       child: Container(
         width: 375,
@@ -287,14 +287,12 @@ class ProjectCreationDialog extends HookConsumerWidget {
                         selectedOptionBuilder: (context, value) =>
                             ShadBadge.outline(
                               child: Text(
-                                value != null
-                                    ? value
+                                value
                                           .replaceAll('_', ' ')
                                           .replaceFirst(
                                             value[0],
                                             value[0].toUpperCase(),
-                                          )
-                                    : 'Select status',
+                                          ),
                                 style: TextStyle(
                                   color: getStatusColor(value ?? ''),
                                 ),

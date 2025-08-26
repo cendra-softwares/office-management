@@ -102,7 +102,7 @@ class _OwnerChangeDialogState extends State<OwnerChangeDialog> {
             Navigator.of(context).pop();
           },
         ),
-        ShadButton(child: const Text('Save'), onPressed: _saveOwner),
+        ShadButton(onPressed: _saveOwner, child: const Text('Save')),
       ],
       child: Container(
         width: 375,
@@ -152,10 +152,10 @@ class _OwnerChangeDialogState extends State<OwnerChangeDialog> {
                           value: userId ?? '',
                           child: Text(fullName ?? 'No name'),
                         );
-                      }).toList(),
+                      }),
                     ],
                     selectedOptionBuilder: (context, value) {
-                      if (value == null || value.isEmpty) {
+                      if (value.isEmpty) {
                         return const Text('Select owner');
                       }
                       final selectedUser = _allUsers.firstWhere(

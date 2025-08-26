@@ -131,7 +131,7 @@ class _CompanyCreationDialogState extends State<CompanyCreationDialog> {
             Navigator.of(context).pop();
           },
         ),
-        ShadButton(child: const Text('Create'), onPressed: _saveCompany),
+        ShadButton(onPressed: _saveCompany, child: const Text('Create')),
       ],
       child: Container(
         width: 375,
@@ -219,10 +219,10 @@ class _CompanyCreationDialogState extends State<CompanyCreationDialog> {
                           value: userId ?? '',
                           child: Text(fullName ?? 'No name'),
                         );
-                      }).toList(),
+                      }),
                     ],
                     selectedOptionBuilder: (context, value) {
-                      if (value == null || value.isEmpty) {
+                      if (value.isEmpty) {
                         return const Text('Select owner');
                       }
                       final selectedUser = _allUsers.firstWhere(
@@ -278,10 +278,8 @@ class _CompanyCreationDialogState extends State<CompanyCreationDialog> {
                           ),
                         ],
                         selectedOptionBuilder: (context, value) => Text(
-                          value != null
-                              ? value.split('').first.toUpperCase() +
-                                    value.substring(1)
-                              : 'Select status',
+                          value.split('').first.toUpperCase() +
+                                    value.substring(1),
                         ),
                       ),
                       if (_statusError != null)

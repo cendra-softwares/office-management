@@ -112,8 +112,8 @@ class _UserEditDialogState extends State<UserEditDialog> {
           },
         ),
         ShadButton(
-          child: _isLoading ? const CircularProgressIndicator() : const Text('Save'),
           onPressed: _isLoading ? null : _saveUser,
+          child: _isLoading ? const CircularProgressIndicator() : const Text('Save'),
         ),
       ],
       child: Container(
@@ -204,10 +204,8 @@ class _UserEditDialogState extends State<UserEditDialog> {
                           ShadOption(value: 'member', child: Text('Member')),
                         ],
                         selectedOptionBuilder: (context, value) => Text(
-                          value != null
-                              ? value.split('').first.toUpperCase() +
-                                  value.substring(1)
-                              : 'Select role',
+                          value.split('').first.toUpperCase() +
+                                  value.substring(1),
                         ),
                       ),
                       if (_roleError != null)

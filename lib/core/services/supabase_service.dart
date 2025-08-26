@@ -107,23 +107,21 @@ class SupabaseService {
           .single();
 
       // After creating the company, update the owner's user profile with the company ID
-      if (response != null) {
-        final companyId = response['id'] as String;
-        try {
-          await client
-              .from('user_profiles')
-              .update({'company_id': companyId})
-              .eq('id', ownerId)
-              .select()
-              .single();
-          print('User profile updated with company ID: $companyId');
-        } catch (e) {
-          print('Error updating user profile with company ID: $e');
-          // We might want to handle this error, perhaps by deleting the created company
-          // or by implementing a transaction rollback mechanism
-        }
+      final companyId = response['id'] as String;
+      try {
+        await client
+            .from('user_profiles')
+            .update({'company_id': companyId})
+            .eq('id', ownerId)
+            .select()
+            .single();
+        print('User profile updated with company ID: $companyId');
+      } catch (e) {
+        print('Error updating user profile with company ID: $e');
+        // We might want to handle this error, perhaps by deleting the created company
+        // or by implementing a transaction rollback mechanism
       }
-
+    
       print('Company created successfully: $response');
       return response;
     } catch (e) {

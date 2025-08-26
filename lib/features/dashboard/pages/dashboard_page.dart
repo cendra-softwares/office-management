@@ -131,7 +131,7 @@ class _DashboardPageState extends State<DashboardPage> {
       appBar: AppBar(
         title: const Text('Owner Dashboard'),
         actions: [
-          ShadButton.ghost(child: const Icon(Icons.logout), onPressed: _logout),
+          ShadButton.ghost(onPressed: _logout, child: const Icon(Icons.logout)),
         ],
       ),
       body: Center(

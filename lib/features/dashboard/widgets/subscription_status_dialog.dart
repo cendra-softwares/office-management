@@ -49,9 +49,9 @@ class _SubscriptionStatusDialogState extends State<SubscriptionStatusDialog> {
               },
             ),
           ] else if (status == 'canceled' || status == 'expired') ...[
-            ShadButton(child: const Text('Logout'), onPressed: widget.onLogout),
+            ShadButton(onPressed: widget.onLogout, child: const Text('Logout')),
           ] else if (isActive == false) ...[
-            ShadButton(child: const Text('Logout'), onPressed: widget.onLogout),
+            ShadButton(onPressed: widget.onLogout, child: const Text('Logout')),
           ],
         ],
         child: Column(
