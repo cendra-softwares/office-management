@@ -72,6 +72,7 @@ class SupabaseService {
     required String ownerId,
     required String status,
     required bool isActive,
+    DateTime? trialEndDate, // Added trialEndDate parameter
   }) async {
     try {
       // Log current user information
@@ -98,7 +99,7 @@ class SupabaseService {
             'owner_id': ownerId,
             'status': status,
             'is_active': isActive,
-            // trial_start_date and trial_end_date will use their default values
+            if (trialEndDate != null) 'trial_end_date': trialEndDate.toIso8601String(),
             // created_at and updated_at will use their default values
           })
           .select()

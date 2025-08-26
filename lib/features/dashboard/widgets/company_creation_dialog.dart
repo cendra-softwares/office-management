@@ -93,6 +93,9 @@ class _CompanyCreationDialogState extends State<CompanyCreationDialog> {
         ownerId: _selectedOwnerId!,
         status: _selectedStatus!,
         isActive: _isActive,
+        trialEndDate: DateTime.now().add(
+          const Duration(days: 30),
+        ), // Example: set trial end date to 30 days from now
       );
 
       if (company != null) {
