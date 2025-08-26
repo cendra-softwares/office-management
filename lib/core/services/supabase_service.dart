@@ -99,11 +99,30 @@ class SupabaseService {
             'owner_id': ownerId,
             'status': status,
             'is_active': isActive,
-            if (trialEndDate != null) 'trial_end_date': trialEndDate.toIso8601String(),
+            if (trialEndDate != null)
+              'trial_end_date': trialEndDate.toIso8601String(),
             // created_at and updated_at will use their default values
           })
           .select()
           .single();
+
+      // After creating the company, update the owner's user profile with the company ID
+      if (response != null) {
+        final companyId = response['id'] as String;
+        try {
+          await client
+              .from('user_profiles')
+              .update({'company_id': companyId})
+              .eq('id', ownerId)
+              .select()
+              .single();
+          print('User profile updated with company ID: $companyId');
+        } catch (e) {
+          print('Error updating user profile with company ID: $e');
+          // We might want to handle this error, perhaps by deleting the created company
+          // or by implementing a transaction rollback mechanism
+        }
+      }
 
       print('Company created successfully: $response');
       return response;
@@ -113,8 +132,10 @@ class SupabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchAllCompanies(
-      {String sortBy = 'name', bool ascending = true}) async {
+  Future<List<Map<String, dynamic>>> fetchAllCompanies({
+    String sortBy = 'name',
+    bool ascending = true,
+  }) async {
     try {
       final response = await client
           .from('companies')
@@ -127,8 +148,10 @@ class SupabaseService {
     }
   }
 
-  Future<Map<String, dynamic>?> updateCompanyOwner(
-      {required String companyId, required String newOwnerId}) async {
+  Future<Map<String, dynamic>?> updateCompanyOwner({
+    required String companyId,
+    required String newOwnerId,
+  }) async {
     try {
       final response = await client
           .from('companies')
@@ -175,6 +198,78 @@ class SupabaseService {
       return response;
     } catch (e) {
       print('Error updating user: $e');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchAllProjects({
+    String sortBy = 'name',
+    bool ascending = true,
+  }) async {
+    try {
+      // Get the current user's company ID
+      final user = client.auth.currentUser;
+      if (user == null) return [];
+
+      final userProfile = await getUserProfile(user.id);
+      final companyId = userProfile?['company_id'];
+
+      if (companyId == null) return [];
+
+      final response = await client
+          .from('projects')
+          .select(
+            'id, name, description, location, address, contact_phone, status, start_date, end_date',
+          )
+          .eq('company_id', companyId)
+          .order(sortBy, ascending: ascending);
+      return List<Map<String, dynamic>>.from(response as List);
+    } catch (e) {
+      print('Error fetching projects: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> createProject({
+    required String name,
+    String? description,
+    String? location,
+    String? address,
+    String? contactPhone,
+    required String status,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      // Get the current user's company ID
+      final user = client.auth.currentUser;
+      if (user == null) return null;
+
+      final userProfile = await getUserProfile(user.id);
+      final companyId = userProfile?['company_id'];
+
+      if (companyId == null) return null;
+
+      final response = await client
+          .from('projects')
+          .insert({
+            'name': name,
+            'description': description,
+            'location': location,
+            'address': address,
+            'contact_phone': contactPhone,
+            'status': status,
+            'company_id': companyId,
+            if (startDate != null) 'start_date': startDate.toIso8601String(),
+            if (endDate != null) 'end_date': endDate.toIso8601String(),
+          })
+          .select()
+          .single();
+
+      print('Project created successfully: $response');
+      return response;
+    } catch (e) {
+      print('Error creating project: $e');
       return null;
     }
   }

@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   shadcn_ui: ^0.28.7
   flutter_dotenv: ^6.0.0
+  command_palette: ^0.7.6
+  flutter_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:

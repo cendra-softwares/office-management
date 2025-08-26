@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HoverCard extends StatefulWidget {
+  final Widget title;
+  final Widget description;
+  final Widget child;
+  final VoidCallback onTap;
+
   const HoverCard({
     super.key,
     required this.title,
     required this.description,
     required this.child,
-    this.onTap,
+    required this.onTap,
   });
-
-  final Widget title;
-  final Widget description;
-  final Widget child;
-  final VoidCallback? onTap;
 
   @override
   State<HoverCard> createState() => _HoverCardState();
@@ -26,16 +26,49 @@ class _HoverCardState extends State<HoverCard> {
   Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+      onHover: (event) {
+        if (!_isHovered) {
+          setState(() {
+            _isHovered = true;
+          });
+        }
+      },
+      onExit: (event) {
+        if (_isHovered) {
+          setState(() {
+            _isHovered = false;
+          });
+        }
+      },
       child: GestureDetector(
         onTap: widget.onTap,
-        child: ShadCard(
-          backgroundColor: _isHovered ? theme.colorScheme.muted : theme.colorScheme.card,
-          title: widget.title,
-          description: widget.description,
-          child: widget.child,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: _isHovered
+                ? theme.colorScheme.primary.withOpacity(0.1)
+                : null,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _isHovered
+                  ? theme.colorScheme.primary
+                  : Colors.grey.withOpacity(0.5),
+            ),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              widget.child,
+              const SizedBox(height: 12),
+              widget.title,
+              const SizedBox(height: 4),
+              DefaultTextStyle(
+                style: theme.textTheme.muted.copyWith(fontSize: 12),
+                child: widget.description,
+              ),
+            ],
+          ),
         ),
       ),
     );
