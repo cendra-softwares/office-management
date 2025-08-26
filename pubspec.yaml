@@ -38,6 +38,8 @@ dependencies:
   flutter_dotenv: ^6.0.0
   command_palette: ^0.7.6
   flutter_riverpod: ^2.6.1
+  flutter_hooks: ^0.21.3+1
+  hooks_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:
