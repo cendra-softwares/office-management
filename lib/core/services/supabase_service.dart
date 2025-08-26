@@ -113,9 +113,13 @@ class SupabaseService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchAllCompanies() async {
+  Future<List<Map<String, dynamic>>> fetchAllCompanies(
+      {String sortBy = 'name', bool ascending = true}) async {
     try {
-      final response = await client.from('companies').select('*, owner:owner_id(full_name)');
+      final response = await client
+          .from('companies')
+          .select('*, owner:owner_id(full_name)')
+          .order(sortBy, ascending: ascending);
       return List<Map<String, dynamic>>.from(response as List);
     } catch (e) {
       print('Error fetching companies: $e');

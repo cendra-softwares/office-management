@@ -15,6 +15,8 @@ class _CompaniesPageState extends State<CompaniesPage> {
   bool _isLoading = true;
   List<Map<String, dynamic>> _companies = [];
   List<Map<String, dynamic>> _users = [];
+  int _sortColumnIndex = 0;
+  bool _sortAscending = true;
 
   @override
   void initState() {
@@ -23,7 +25,7 @@ class _CompaniesPageState extends State<CompaniesPage> {
   }
 
   Future<void> _fetchData() async {
-    await _fetchCompanies();
+    await _fetchCompanies(sortBy: 'name', ascending: true);
     await _fetchUsers();
     if (mounted) {
       setState(() {
@@ -32,8 +34,14 @@ class _CompaniesPageState extends State<CompaniesPage> {
     }
   }
 
-  Future<void> _fetchCompanies() async {
-    final companies = await SupabaseService().fetchAllCompanies();
+  Future<void> _fetchCompanies({
+    String sortBy = 'name',
+    bool ascending = true,
+  }) async {
+    final companies = await SupabaseService().fetchAllCompanies(
+      sortBy: sortBy,
+      ascending: ascending,
+    );
     if (mounted) {
       setState(() {
         _companies = companies;
@@ -110,65 +118,110 @@ class _CompaniesPageState extends State<CompaniesPage> {
                     width: double.infinity, // Make the card take full width
                     child: _companies.isEmpty
                         ? const Center(child: Text('No companies found.'))
-                        : ShadTable(
-                            columnCount: headings.length,
-                            rowCount: _companies.length,
-                            header: (context, column) {
-                              return ShadTableCell.header(
-                                child: Text(headings[column]),
-                              );
-                            },
-                            columnSpanExtent: (index) {
-                              // Adjust column widths for better aesthetics
-                              if (index == 0) {
-                                return const FixedTableSpanExtent(200);
-                              } // Company
-                              if (index == 1) {
-                                return const FixedTableSpanExtent(120);
-                              } // Status
-                              if (index == 2) {
-                                return const FixedTableSpanExtent(180);
-                              } // Owner
-                              if (index == 3) {
-                                return const FixedTableSpanExtent(80);
-                              } // Active
-                              return const RemainingTableSpanExtent(); // Actions
-                            },
-                            builder: (context, index) {
-                              final company = _companies[index.row];
-                              final owner = company['owner'];
-                              final ownerName = owner is Map
-                                  ? owner['full_name']
-                                  : 'N/A';
-
-                              if (index.column == 4) {
-                                // Actions column
-                                return ShadTableCell(
-                                  child: ShadButton.ghost(
-                                    child: const Icon(LucideIcons.pencil),
-                                    onPressed: () {
-                                      showShadDialog(
-                                        context: context,
-                                        builder: (context) => OwnerChangeDialog(
-                                          company: company,
-                                          onOwnerChanged: _fetchCompanies,
-                                        ),
-                                      );
+                        : DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.5),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: ShadTable(
+                              columnCount: headings.length,
+                              rowCount: _companies.length,
+                              header: (context, column) {
+                                return ShadTableCell.header(
+                                  alignment: Alignment.center,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        if (_sortColumnIndex == column) {
+                                          _sortAscending = !_sortAscending;
+                                        } else {
+                                          _sortColumnIndex = column;
+                                          _sortAscending = true;
+                                        }
+                                        final sortBy =
+                                            headings[column] == 'Company'
+                                            ? 'name'
+                                            : headings[column].toLowerCase();
+                                        _fetchCompanies(
+                                          sortBy: sortBy,
+                                          ascending: _sortAscending,
+                                        );
+                                      });
                                     },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(headings[column]),
+                                        if (_sortColumnIndex == column)
+                                          Icon(
+                                            _sortAscending
+                                                ? Icons.arrow_upward
+                                                : Icons.arrow_downward,
+                                            size: 16,
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 );
-                              }
+                              },
+                              columnSpanExtent: (index) {
+                                // Adjust column widths for better aesthetics
+                                if (index == 0) {
+                                  return const FixedTableSpanExtent(200);
+                                } // Company
+                                if (index == 1) {
+                                  return const FixedTableSpanExtent(120);
+                                } // Status
+                                if (index == 2) {
+                                  return const FixedTableSpanExtent(180);
+                                } // Owner
+                                if (index == 3) {
+                                  return const FixedTableSpanExtent(80);
+                                } // Active
+                                return const RemainingTableSpanExtent(); // Actions
+                              },
+                              builder: (context, index) {
+                                final company = _companies[index.row];
+                                final owner = company['owner'];
+                                final ownerName = owner is Map
+                                    ? owner['full_name']
+                                    : 'N/A';
 
-                              final data = [
-                                company['name'],
-                                company['status'],
-                                ownerName,
-                                company['is_active'].toString(),
-                              ];
-                              return ShadTableCell(
-                                child: Text(data[index.column]),
-                              );
-                            },
+                                if (index.column == 4) {
+                                  // Actions column
+                                  return ShadTableCell(
+                                    alignment: Alignment.center,
+                                    child: ShadButton.ghost(
+                                      child: const Icon(LucideIcons.pencil),
+                                      onPressed: () {
+                                        showShadDialog(
+                                          context: context,
+                                          builder: (context) =>
+                                              OwnerChangeDialog(
+                                                company: company,
+                                                onOwnerChanged: _fetchCompanies,
+                                              ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }
+
+                                final data = [
+                                  company['name'],
+                                  company['status'],
+                                  ownerName,
+                                  company['is_active'].toString(),
+                                ];
+                                return ShadTableCell(
+                                  alignment: Alignment.center,
+                                  child: Text(data[index.column]),
+                                );
+                              },
+                            ),
                           ),
                   ),
                 ),
