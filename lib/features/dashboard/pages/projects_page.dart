@@ -16,6 +16,7 @@ class ProjectsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ShadTheme.of(context);
+    final searchController = useTextEditingController();
 
     Color getStatusColor(String status) {
       switch (status) {
@@ -91,83 +92,126 @@ class ProjectsPage extends HookConsumerWidget {
                       children: [
                         // Search bar row
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
+                            // Reset Button
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 250,
-                                ),
-                                child: ShadInput(
-                                  placeholder: const Text('Search projects...'),
-                                  onChanged: (value) {
-                                    ref
-                                            .read(
-                                              projectSearchQueryProvider
-                                                  .notifier,
-                                            )
-                                            .state =
-                                        value;
-                                  },
-                                ),
+                              padding: const EdgeInsets.only(left: 250),
+                              child: ShadButton.outline(
+                                child: const Text('Reset Filters'),
+                                onPressed: () {
+                                  searchController.clear(); // Clear search text
+                                  ref
+                                          .read(
+                                            projectSearchQueryProvider.notifier,
+                                          )
+                                          .state =
+                                      '';
+                                  ref
+                                          .read(
+                                            projectStatusFilterProvider
+                                                .notifier,
+                                          )
+                                          .state =
+                                      [];
+                                },
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 300,
-                                ),
-                                child: ShadSelect<String>.multiple(
-                                  minWidth: 200,
-                                  placeholder: const Text('Filter by status'),
-                                  selectedOptionsBuilder: (context, values) {
-                                    if (values.isEmpty) {
-                                      return const Text('Filter by status');
-                                    }
-                                    return Text(
-                                      '${values.length} status selected',
-                                    );
-                                  },
-                                  options:
-                                      [
-                                            'planning',
-                                            'in_progress',
-                                            'on_hold',
-                                            'completed',
-                                            'cancelled',
-                                          ]
-                                          .map(
-                                            (status) => ShadOption(
-                                              value: status,
-                                              child: ShadBadge.outline(
-                                                child: Text(
-                                                  status
-                                                      .replaceAll('_', ' ')
-                                                      .replaceFirst(
-                                                        status[0],
-                                                        status[0].toUpperCase(),
+                            // Search bar and Status filter
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 250,
+                                      ),
+                                      child: ShadInput(
+                                        controller: searchController,
+                                        placeholder: const Text(
+                                          'Search projects...',
+                                        ),
+                                        onChanged: (value) {
+                                          ref
+                                                  .read(
+                                                    projectSearchQueryProvider
+                                                        .notifier,
+                                                  )
+                                                  .state =
+                                              value;
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 250),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 300,
+                                      ),
+                                      child: ShadSelect<String>.multiple(
+                                        minWidth: 200,
+                                        placeholder: const Text(
+                                          'Filter by status',
+                                        ),
+                                        selectedOptionsBuilder: (context, values) {
+                                          if (values.isEmpty) {
+                                            return const Text(
+                                              'Filter by status',
+                                            );
+                                          }
+                                          return Text(
+                                            '${values.length} status selected',
+                                          );
+                                        },
+                                        options:
+                                            [
+                                                  'planning',
+                                                  'in_progress',
+                                                  'on_hold',
+                                                  'completed',
+                                                  'cancelled',
+                                                ]
+                                                .map(
+                                                  (status) => ShadOption(
+                                                    value: status,
+                                                    child: ShadBadge.outline(
+                                                      child: Text(
+                                                        status
+                                                            .replaceAll(
+                                                              '_',
+                                                              ' ',
+                                                            )
+                                                            .replaceFirst(
+                                                              status[0],
+                                                              status[0]
+                                                                  .toUpperCase(),
+                                                            ),
+                                                        style: TextStyle(
+                                                          color: getStatusColor(
+                                                            status,
+                                                          ),
+                                                        ),
                                                       ),
-                                                  style: TextStyle(
-                                                    color: getStatusColor(
-                                                      status,
                                                     ),
                                                   ),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                          .toList(),
-                                  onChanged: (values) {
-                                    ref
-                                        .read(
-                                          projectStatusFilterProvider.notifier,
-                                        )
-                                        .state = values
-                                        .toList();
-                                  },
-                                ),
+                                                )
+                                                .toList(),
+                                        onChanged: (values) {
+                                          ref
+                                              .read(
+                                                projectStatusFilterProvider
+                                                    .notifier,
+                                              )
+                                              .state = values
+                                              .toList();
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
