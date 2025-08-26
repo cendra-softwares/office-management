@@ -34,9 +34,10 @@ final projectSortProvider = StateProvider<ProjectSortState>(
 );
 
 // Provider for search query
-final projectSearchQueryProvider = StateProvider<String>(
-  (ref) => '',
-);
+final projectSearchQueryProvider = StateProvider<String>((ref) => '');
+
+// Provider for selected status filters
+final projectStatusFilterProvider = StateProvider<List<String>>((ref) => []);
 
 // Provider for filtered and sorted projects
 final filteredAndSortedProjectsProvider = Provider<List<Map<String, dynamic>>>((
@@ -45,6 +46,7 @@ final filteredAndSortedProjectsProvider = Provider<List<Map<String, dynamic>>>((
   final allProjectsAsync = ref.watch(allProjectsProvider);
   final sortState = ref.watch(projectSortProvider);
   final searchQuery = ref.watch(projectSearchQueryProvider);
+  final statusFilters = ref.watch(projectStatusFilterProvider);
 
   // If data is still loading, return an empty list
   if (allProjectsAsync is! AsyncData<List<Map<String, dynamic>>>) {
@@ -52,7 +54,6 @@ final filteredAndSortedProjectsProvider = Provider<List<Map<String, dynamic>>>((
   }
 
   final allProjects = allProjectsAsync.value;
-
 
   // Filter projects based on search query
   List<Map<String, dynamic>> filteredProjects = allProjects;
@@ -69,11 +70,19 @@ final filteredAndSortedProjectsProvider = Provider<List<Map<String, dynamic>>>((
       final statusContains =
           project['status']?.toString().toLowerCase().contains(query) == true;
 
-
       return nameContains ||
           descriptionContains ||
           locationContains ||
           statusContains;
+    }).toList();
+  }
+
+  // Filter projects based on status filters
+  if (statusFilters.isNotEmpty) {
+    filteredProjects = filteredProjects.where((project) {
+      final projectStatus = project['status'];
+      final shouldInclude = statusFilters.contains(projectStatus);
+      return shouldInclude;
     }).toList();
   }
 

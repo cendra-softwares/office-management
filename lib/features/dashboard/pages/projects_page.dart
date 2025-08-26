@@ -39,6 +39,7 @@ class ProjectsPage extends HookConsumerWidget {
       filteredAndSortedProjectsProvider,
     );
     final sortState = ref.watch(projectSortProvider);
+    final statusFilters = ref.watch(projectStatusFilterProvider);
     final headings = [
       'Project',
       'Description',
@@ -90,7 +91,7 @@ class ProjectsPage extends HookConsumerWidget {
                       children: [
                         // Search bar row
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -112,6 +113,63 @@ class ProjectsPage extends HookConsumerWidget {
                                 ),
                               ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 300,
+                                ),
+                                child: ShadSelect<String>.multiple(
+                                  minWidth: 200,
+                                  placeholder: const Text('Filter by status'),
+                                  selectedOptionsBuilder: (context, values) {
+                                    if (values.isEmpty) {
+                                      return const Text('Filter by status');
+                                    }
+                                    return Text(
+                                      '${values.length} status selected',
+                                    );
+                                  },
+                                  options:
+                                      [
+                                            'planning',
+                                            'in_progress',
+                                            'on_hold',
+                                            'completed',
+                                            'cancelled',
+                                          ]
+                                          .map(
+                                            (status) => ShadOption(
+                                              value: status,
+                                              child: ShadBadge.outline(
+                                                child: Text(
+                                                  status
+                                                      .replaceAll('_', ' ')
+                                                      .replaceFirst(
+                                                        status[0],
+                                                        status[0].toUpperCase(),
+                                                      ),
+                                                  style: TextStyle(
+                                                    color: getStatusColor(
+                                                      status,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                  onChanged: (values) {
+                                    ref
+                                        .read(
+                                          projectStatusFilterProvider.notifier,
+                                        )
+                                        .state = values
+                                        .toList();
+                                  },
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         // Table
@@ -122,6 +180,9 @@ class ProjectsPage extends HookConsumerWidget {
                             child: SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: DataTable(
+                                key: ValueKey(
+                                  projects.length,
+                                ), // Add key to force rebuild
                                 sortColumnIndex: sortState.columnIndex,
                                 sortAscending: sortState.ascending,
                                 columns: [
