@@ -112,4 +112,14 @@ class SupabaseService {
       return null;
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchAllCompanies() async {
+    try {
+      final response = await client.from('companies').select('*, owner:owner_id(full_name)');
+      return List<Map<String, dynamic>>.from(response as List);
+    } catch (e) {
+      print('Error fetching companies: $e');
+      return [];
+    }
+  }
 }

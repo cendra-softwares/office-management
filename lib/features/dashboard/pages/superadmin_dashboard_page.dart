@@ -15,55 +15,60 @@ class SuperAdminDashboardPage extends StatefulWidget {
 class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
   String? _userRole;
   bool _isLoading = true;
+  List<Map<String, dynamic>> _companies = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchUserRole();
+    _fetchData();
   }
 
-  Future<void> _fetchUserRole() async {
-    final user = Supabase.instance.client.auth.currentUser;
-    print('Current user in dashboard: ${user?.id}');
-    print('Current user email in dashboard: ${user?.email}');
-    if (user != null) {
-      try {
-        final userProfile = await SupabaseService().getUserProfile(user.id);
-        print('User profile: $userProfile');
-        if (userProfile != null) {
-          setState(() {
-            _userRole = userProfile['role'] as String?;
-            print('User role set to: $_userRole');
-            _isLoading = false;
-          });
-        } else {
-          // Handle case where user profile is not found
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        // Handle error
-        print('Error fetching user role: $e');
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    } else {
+  Future<void> _fetchData() async {
+    await _fetchUserRole();
+    await _fetchCompanies();
+    if (mounted) {
       setState(() {
         _isLoading = false;
       });
     }
   }
 
+  Future<void> _fetchCompanies() async {
+    final companies = await SupabaseService().fetchAllCompanies();
+    if (mounted) {
+      setState(() {
+        _companies = companies;
+      });
+    }
+  }
+
+  Future<void> _fetchUserRole() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      try {
+        final userProfile = await SupabaseService().getUserProfile(user.id);
+        if (userProfile != null && mounted) {
+          setState(() {
+            _userRole = userProfile['role'] as String?;
+          });
+        }
+      } catch (e) {
+        print('Error fetching user role: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
+    final theme = ShadTheme.of(context);
+    final headings = ['Company', 'Status', 'Owner', 'Active'];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Super Admin Dashboard'),
         actions: [
-          ShadButton(
+          ShadButton.ghost(
             child: const Icon(Icons.logout),
             onPressed: () async {
               await Supabase.instance.client.auth.signOut();
@@ -74,44 +79,68 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
           ),
         ],
       ),
-      body: Center(
-        child: ShadCard(
-          width: 350,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Welcome to the Super Admin Dashboard!'),
-              if (_isLoading)
-                SizedBox.square(
-                  dimension: 24.0,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.0,
-                    color: ShadTheme.of(context).colorScheme.primary,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Companies', style: theme.textTheme.h2),
+                      ShadButton(
+                        child: const Text('Create Company'),
+                        onPressed: () {
+                          showShadDialog(
+                            context: context,
+                            builder: (context) => const CompanyCreationDialog(),
+                          ).then((_) => _fetchCompanies());
+                        },
+                      ),
+                    ],
                   ),
-                )
-              else if (user != null) ...[
-                const SizedBox(height: 16),
-                Text('Email: ${user.email}'),
-                if (_userRole != null) ...[
-                  const SizedBox(height: 8),
-                  Text('Role: $_userRole'),
+                  const ShadSeparator.horizontal(
+                    thickness: 1,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 16),
-                  ShadButton(
-                    child: const Text('Create Company'),
-                    onPressed: () {
-                      showShadDialog(
-                        context: context,
-                        builder: (context) => const CompanyCreationDialog(),
-                      );
-                    },
+                  SizedBox(
+                    height: 400,
+                    child: ShadCard(
+                      child: _companies.isEmpty
+                          ? const Center(child: Text('No companies found.'))
+                          : ShadTable(
+                              columnCount: headings.length,
+                              rowCount: _companies.length,
+                              header: (context, column) {
+                                return ShadTableCell.header(
+                                  child: Text(headings[column]),
+                                );
+                              },
+                              builder: (context, index) {
+                                final company = _companies[index.row];
+                                final owner = company['owner'];
+                                final ownerName =
+                                    owner is Map ? owner['full_name'] : 'N/A';
+
+                                final data = [
+                                  company['name'],
+                                  company['status'],
+                                  ownerName,
+                                  company['is_active'].toString(),
+                                ];
+                                return ShadTableCell(
+                                  child: Text(data[index.column]),
+                                );
+                              },
+                            ),
+                    ),
                   ),
                 ],
-              ],
-            ],
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }
