@@ -131,40 +131,61 @@ class _CompaniesPageState extends State<CompaniesPage> {
                               header: (context, column) {
                                 return ShadTableCell.header(
                                   alignment: Alignment.center,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        if (_sortColumnIndex == column) {
-                                          _sortAscending = !_sortAscending;
-                                        } else {
-                                          _sortColumnIndex = column;
-                                          _sortAscending = true;
-                                        }
-                                        final sortBy =
-                                            headings[column] == 'Company'
-                                            ? 'name'
-                                            : headings[column].toLowerCase();
-                                        _fetchCompanies(
-                                          sortBy: sortBy,
-                                          ascending: _sortAscending,
-                                        );
-                                      });
-                                    },
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(headings[column]),
-                                        if (_sortColumnIndex == column)
-                                          Icon(
-                                            _sortAscending
-                                                ? Icons.arrow_upward
-                                                : Icons.arrow_downward,
-                                            size: 16,
+                                  child: headings[column] == 'Actions'
+                                      ? Text(headings[column])
+                                      : GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (_sortColumnIndex == column) {
+                                                _sortAscending =
+                                                    !_sortAscending;
+                                              } else {
+                                                _sortColumnIndex = column;
+                                                _sortAscending = true;
+                                              }
+                                              final sortBy =
+                                                  headings[column] == 'Company'
+                                                  ? 'name'
+                                                  : headings[column] == 'Owner'
+                                                  ? 'owner_id'
+                                                  : headings[column]
+                                                            .toLowerCase() ==
+                                                        'active'
+                                                  ? 'is_active'
+                                                  : headings[column]
+                                                            .toLowerCase() ==
+                                                        'status'
+                                                  ? 'status'
+                                                  : headings[column]
+                                                        .toLowerCase();
+                                              _fetchCompanies(
+                                                sortBy: sortBy,
+                                                ascending: _sortAscending,
+                                              );
+                                            });
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  headings[column],
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                              if (_sortColumnIndex == column)
+                                                Icon(
+                                                  _sortAscending
+                                                      ? Icons.arrow_upward
+                                                      : Icons.arrow_downward,
+                                                  size: 16,
+                                                ),
+                                            ],
                                           ),
-                                      ],
-                                    ),
-                                  ),
+                                        ),
                                 );
                               },
                               columnSpanExtent: (index) {
