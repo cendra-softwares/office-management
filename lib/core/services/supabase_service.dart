@@ -122,4 +122,21 @@ class SupabaseService {
       return [];
     }
   }
+
+  Future<Map<String, dynamic>?> updateCompanyOwner(
+      {required String companyId, required String newOwnerId}) async {
+    try {
+      final response = await client
+          .from('companies')
+          .update({'owner_id': newOwnerId})
+          .eq('id', companyId)
+          .select()
+          .single();
+      print('Company owner updated successfully: $response');
+      return response;
+    } catch (e) {
+      print('Error updating company owner: $e');
+      return null;
+    }
+  }
 }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:office_management/core/services/supabase_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:office_management/features/dashboard/widgets/company_creation_dialog.dart';
+import 'package:office_management/features/dashboard/pages/companies_page.dart';
+import 'package:office_management/features/dashboard/widgets/hover_card.dart';
 
 class SuperAdminDashboardPage extends StatefulWidget {
   const SuperAdminDashboardPage({super.key});
@@ -15,31 +16,11 @@ class SuperAdminDashboardPage extends StatefulWidget {
 class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
   String? _userRole;
   bool _isLoading = true;
-  List<Map<String, dynamic>> _companies = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchData();
-  }
-
-  Future<void> _fetchData() async {
-    await _fetchUserRole();
-    await _fetchCompanies();
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _fetchCompanies() async {
-    final companies = await SupabaseService().fetchAllCompanies();
-    if (mounted) {
-      setState(() {
-        _companies = companies;
-      });
-    }
+    _fetchUserRole();
   }
 
   Future<void> _fetchUserRole() async {
@@ -56,13 +37,16 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
         print('Error fetching user role: $e');
       }
     }
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = Supabase.instance.client.auth.currentUser;
     final theme = ShadTheme.of(context);
-    final headings = ['Company', 'Status', 'Owner', 'Active'];
 
     return Scaffold(
       appBar: AppBar(
@@ -81,64 +65,40 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Companies', style: theme.textTheme.h2),
-                      ShadButton(
-                        child: const Text('Create Company'),
-                        onPressed: () {
-                          showShadDialog(
-                            context: context,
-                            builder: (context) => const CompanyCreationDialog(),
-                          ).then((_) => _fetchCompanies());
-                        },
+          : Center(
+              child: SizedBox(
+                width: 400,
+                height: 200,
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  padding: const EdgeInsets.all(24),
+                  crossAxisSpacing: 24,
+                  mainAxisSpacing: 24,
+                  children: [
+                    HoverCard(
+                      title: Text('Companies', style: theme.textTheme.h4),
+                      description: const Text('View and manage companies'),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const CompaniesPage(),
+                          ),
+                        );
+                      },
+                      child: const Center(
+                        child: Icon(Icons.business, size: 48),
                       ),
-                    ],
-                  ),
-                  const ShadSeparator.horizontal(
-                    thickness: 1,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 400,
-                    child: ShadCard(
-                      child: _companies.isEmpty
-                          ? const Center(child: Text('No companies found.'))
-                          : ShadTable(
-                              columnCount: headings.length,
-                              rowCount: _companies.length,
-                              header: (context, column) {
-                                return ShadTableCell.header(
-                                  child: Text(headings[column]),
-                                );
-                              },
-                              builder: (context, index) {
-                                final company = _companies[index.row];
-                                final owner = company['owner'];
-                                final ownerName =
-                                    owner is Map ? owner['full_name'] : 'N/A';
-
-                                final data = [
-                                  company['name'],
-                                  company['status'],
-                                  ownerName,
-                                  company['is_active'].toString(),
-                                ];
-                                return ShadTableCell(
-                                  child: Text(data[index.column]),
-                                );
-                              },
-                            ),
                     ),
-                  ),
-                ],
+                    HoverCard(
+                      title: Text('Users', style: theme.textTheme.h4),
+                      description: const Text('View and manage users'),
+                      onTap: () {
+                        // TODO: Implement user management page
+                      },
+                      child: const Center(child: Icon(Icons.people, size: 48)),
+                    ),
+                  ],
+                ),
               ),
             ),
     );
