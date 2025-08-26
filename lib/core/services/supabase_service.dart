@@ -273,4 +273,39 @@ class SupabaseService {
       return null;
     }
   }
+  Future<Map<String, dynamic>?> updateProject({
+    required String id,
+    required String name,
+    String? description,
+    String? location,
+    String? address,
+    String? contactPhone,
+    required String status,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      final response = await client
+          .from('projects')
+          .update({
+            'name': name,
+            'description': description,
+            'location': location,
+            'address': address,
+            'contact_phone': contactPhone,
+            'status': status,
+            if (startDate != null) 'start_date': startDate.toIso8601String(),
+            if (endDate != null) 'end_date': endDate.toIso8601String(),
+          })
+          .eq('id', id)
+          .select()
+          .single();
+
+      print('Project updated successfully: $response');
+      return response;
+    } catch (e) {
+      print('Error updating project: $e');
+      return null;
+    }
+  }
 }

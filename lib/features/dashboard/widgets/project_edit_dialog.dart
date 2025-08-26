@@ -5,19 +5,35 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:office_management/core/services/supabase_service.dart';
 import 'package:office_management/features/dashboard/providers/project_providers.dart';
 
-class ProjectCreationDialog extends HookConsumerWidget {
-  const ProjectCreationDialog({super.key});
+class ProjectEditDialog extends HookConsumerWidget {
+  const ProjectEditDialog({super.key, required this.project});
+
+  final Map<String, dynamic> project;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final projectNameController = useTextEditingController();
-    final descriptionController = useTextEditingController();
-    final locationController = useTextEditingController();
-    final addressController = useTextEditingController();
-    final contactPhoneController = useTextEditingController();
-    final selectedStatus = useState<String?>('planning');
-    final startDate = useState<DateTime?>(null);
-    final endDate = useState<DateTime?>(null);
+    final projectNameController = useTextEditingController(
+      text: project['name'],
+    );
+    final descriptionController = useTextEditingController(
+      text: project['description'],
+    );
+    final locationController = useTextEditingController(
+      text: project['location'],
+    );
+    final addressController = useTextEditingController(
+      text: project['address'],
+    );
+    final contactPhoneController = useTextEditingController(
+      text: project['contact_phone'],
+    );
+    final selectedStatus = useState<String?>(project['status']);
+    final startDate = useState<DateTime?>(
+      DateTime.tryParse(project['start_date'] ?? ''),
+    );
+    final endDate = useState<DateTime?>(
+      DateTime.tryParse(project['end_date'] ?? ''),
+    );
     final projectNameError = useState<String?>(null);
     final statusError = useState<String?>(null);
     final theme = ShadTheme.of(context);
@@ -74,9 +90,10 @@ class ProjectCreationDialog extends HookConsumerWidget {
       }
     }
 
-    void saveProject() async {
+    void updateProject() async {
       if (validateInputs()) {
-        final project = await SupabaseService().createProject(
+        final updatedProject = await SupabaseService().updateProject(
+          id: project['id'].toString(),
           name: projectNameController.text.trim(),
           description: descriptionController.text.trim(),
           location: locationController.text.trim(),
@@ -87,7 +104,7 @@ class ProjectCreationDialog extends HookConsumerWidget {
           endDate: endDate.value,
         );
 
-        if (project != null) {
+        if (updatedProject != null) {
           ref.invalidate(allProjectsProvider);
           if (context.mounted) {
             Navigator.of(context).pop();
@@ -99,8 +116,8 @@ class ProjectCreationDialog extends HookConsumerWidget {
     }
 
     return ShadDialog(
-      title: const Text('Create New Project'),
-      description: const Text('Enter the details for the new project.'),
+      title: const Text('Edit Project'),
+      description: const Text('Update the details for the project.'),
       actions: [
         ShadButton.outline(
           child: const Text('Cancel'),
@@ -108,7 +125,7 @@ class ProjectCreationDialog extends HookConsumerWidget {
             Navigator.of(context).pop();
           },
         ),
-        ShadButton(child: const Text('Create'), onPressed: saveProject),
+        ShadButton(child: const Text('Update'), onPressed: updateProject),
       ],
       child: Container(
         width: 375,

@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:office_management/features/dashboard/providers/project_providers.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:office_management/features/dashboard/widgets/project_creation_dialog.dart';
+import 'package:office_management/features/dashboard/widgets/project_edit_dialog.dart';
 
 class ProjectsPage extends HookConsumerWidget {
   const ProjectsPage({super.key});
@@ -15,6 +16,24 @@ class ProjectsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ShadTheme.of(context);
+
+    Color getStatusColor(String status) {
+      switch (status) {
+        case 'planning':
+          return Colors.blue;
+        case 'in_progress':
+          return Colors.orange;
+        case 'on_hold':
+          return Colors.grey;
+        case 'completed':
+          return Colors.green;
+        case 'cancelled':
+          return Colors.red;
+        default:
+          return Colors.black;
+      }
+    }
+
     final allProjectsAsyncValue = ref.watch(allProjectsProvider);
     final filteredAndSortedProjects = ref.watch(
       filteredAndSortedProjectsProvider,
@@ -25,8 +44,8 @@ class ProjectsPage extends HookConsumerWidget {
       'Description',
       'Location',
       'Status',
-      'Start Date',
       'End Date',
+      'Contact Phone',
       'Actions',
     ];
 
@@ -134,22 +153,68 @@ class ProjectsPage extends HookConsumerWidget {
                                     project['description'] ?? 'N/A',
                                     project['location'] ?? 'N/A',
                                     project['status'],
-                                    project['start_date']?.toString() ?? 'N/A',
                                     project['end_date']?.toString() ?? 'N/A',
+                                    project['contact_phone'] ?? 'N/A',
+                                  ];
+                                  // Reorder data to match new headings
+                                  final reorderedData = [
+                                    data[0], // Project
+                                    data[1], // Description
+                                    data[2], // Location
+                                    data[3], // Status
+                                    data[4], // End Date (moved from original index 5)
+                                    data[5], // Contact Phone (moved from original index 6)
                                   ];
                                   return DataRow(
                                     cells: [
-                                      for (var item in data)
+                                      for (var i = 0; i < data.length; i++)
                                         DataCell(
                                           Container(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(item.toString()),
+                                            alignment: i == 3
+                                                ? Alignment
+                                                      .center // Status column
+                                                : Alignment.centerLeft,
+                                            child: i == 3
+                                                ? ShadBadge.outline(
+                                                    child: Text(
+                                                      data[i].toString(),
+                                                      style: TextStyle(
+                                                        color: getStatusColor(
+                                                          data[i].toString(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Text(data[i].toString()),
                                           ),
                                         ),
                                       DataCell(
                                         Container(
                                           alignment: Alignment.center,
-                                          child: const Icon(Icons.more_vert),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: const Icon(Icons.edit),
+                                                onPressed: () {
+                                                  showShadDialog(
+                                                    context: context,
+                                                    builder: (context) =>
+                                                        ProjectEditDialog(
+                                                          project: project,
+                                                        ),
+                                                  ).then(
+                                                    (_) => ref.invalidate(
+                                                      allProjectsProvider,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                              // Add other action buttons here if needed
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],
