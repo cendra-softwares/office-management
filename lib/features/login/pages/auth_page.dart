@@ -16,6 +16,7 @@ class AuthPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              
               ShadButton(
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, '/login');

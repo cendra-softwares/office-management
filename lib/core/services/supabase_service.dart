@@ -143,4 +143,39 @@ class SupabaseService {
       return null;
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchAllUsers({
+    String sortBy = 'full_name',
+    bool ascending = true,
+  }) async {
+    try {
+      final response = await client
+          .from('user_profiles')
+          .select('*, company:company_id(name)')
+          .order(sortBy, ascending: ascending);
+      return List<Map<String, dynamic>>.from(response as List);
+    } catch (e) {
+      print('Error fetching users: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> updateUser({
+    required String userId,
+    required Map<String, dynamic> updates,
+  }) async {
+    try {
+      final response = await client
+          .from('user_profiles')
+          .update(updates)
+          .eq('id', userId)
+          .select()
+          .single();
+      print('User updated successfully: $response');
+      return response;
+    } catch (e) {
+      print('Error updating user: $e');
+      return null;
+    }
+  }
 }

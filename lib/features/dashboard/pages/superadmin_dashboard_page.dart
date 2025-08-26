@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:office_management/core/services/supabase_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:office_management/features/dashboard/pages/companies_page.dart';
+import 'package:office_management/features/dashboard/pages/users_page.dart';
 import 'package:office_management/features/dashboard/widgets/hover_card.dart';
 
 class SuperAdminDashboardPage extends StatefulWidget {
@@ -14,7 +15,6 @@ class SuperAdminDashboardPage extends StatefulWidget {
 }
 
 class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
-  String? _userRole;
   bool _isLoading = true;
 
   @override
@@ -29,9 +29,7 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
       try {
         final userProfile = await SupabaseService().getUserProfile(user.id);
         if (userProfile != null && mounted) {
-          setState(() {
-            _userRole = userProfile['role'] as String?;
-          });
+          setState(() {});
         }
       } catch (e) {
         print('Error fetching user role: $e');
@@ -93,7 +91,11 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                       title: Text('Users', style: theme.textTheme.h4),
                       description: const Text('View and manage users'),
                       onTap: () {
-                        // TODO: Implement user management page
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const UsersPage(),
+                          ),
+                        );
                       },
                       child: const Center(child: Icon(Icons.people, size: 48)),
                     ),
