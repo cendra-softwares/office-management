@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:office_management/core/services/supabase_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:office_management/features/dashboard/widgets/company_creation_dialog.dart';
+import 'package:office_management/features/dashboard/widgets/owner_change_dialog.dart';
 
 class CompaniesPage extends StatefulWidget {
   const CompaniesPage({super.key});
@@ -143,26 +144,16 @@ class _CompaniesPageState extends State<CompaniesPage> {
                               if (index.column == 4) {
                                 // Actions column
                                 return ShadTableCell(
-                                  child: ShadSelect<String>(
-                                    placeholder: const Text('Change Owner'),
-                                    options: _users.map((user) {
-                                      return ShadOption(
-                                        value: user['id'] as String,
-                                        child: Text(
-                                          user['full_name'] as String,
+                                  child: ShadButton.ghost(
+                                    child: const Icon(LucideIcons.pencil),
+                                    onPressed: () {
+                                      showShadDialog(
+                                        context: context,
+                                        builder: (context) => OwnerChangeDialog(
+                                          company: company,
+                                          onOwnerChanged: _fetchCompanies,
                                         ),
                                       );
-                                    }).toList(),
-                                    onChanged: (newOwnerId) {
-                                      if (newOwnerId != null) {
-                                        _changeOwner(
-                                          company['id'] as String,
-                                          newOwnerId,
-                                        );
-                                      }
-                                    },
-                                    selectedOptionBuilder: (context, value) {
-                                      return Text(value ?? 'Change Owner');
                                     },
                                   ),
                                 );

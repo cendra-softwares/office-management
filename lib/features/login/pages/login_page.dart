@@ -47,7 +47,9 @@ class _LoginPageState extends State<LoginPage> {
         );
         if (response.user != null) {
           // Fetch user profile to determine role
-          final userProfile = await SupabaseService().getUserProfile(response.user!.id);
+          final userProfile = await SupabaseService().getUserProfile(
+            response.user!.id,
+          );
           if (userProfile != null) {
             final userRole = userProfile['role'] as String?;
             // Navigate based on role
@@ -55,12 +57,16 @@ class _LoginPageState extends State<LoginPage> {
               if (userRole == 'superadmin') {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const SuperAdminDashboardPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const SuperAdminDashboardPage(),
+                  ),
                 );
               } else {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const DashboardPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const DashboardPage(),
+                  ),
                 );
               }
             }
@@ -107,83 +113,83 @@ class _LoginPageState extends State<LoginPage> {
             Image.asset('assets/images/Logo.png', height: 100),
             const SizedBox(height: 20),
             ShadCard(
-          width: 350,
-          title: const Text('Login'),
-          child: ShadForm(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_showErrorAlert && _errorMessage != null)
-                  ShadAlert.destructive(
-                    iconData: LucideIcons.circleAlert,
-                    title: const Text('Error'),
-                    description: Text(_errorMessage!),
-                  ),
-                if (_showErrorAlert && _errorMessage != null)
-                  const SizedBox(height: 16),
-                ShadInputFormField(
-                  id: 'email',
-                  controller: _emailController,
-                  label: const Text('Email'),
-                  placeholder: const Text('Enter your email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                ShadInputFormField(
-                  id: 'password',
-                  controller: _passwordController,
-                  label: const Text('Password'),
-                  placeholder: const Text('Enter your password'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ShadButton(
-                  leading: _isLoading
-                      ? SizedBox.square(
-                          dimension: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: ShadTheme.of(
-                              context,
-                            ).colorScheme.primaryForeground,
-                          ),
-                        )
-                      : const Icon(LucideIcons.mail),
-                  onPressed: _isLoading ? null : _handleLogin,
-                  child: Text(_isLoading ? 'Please wait' : 'Login'),
-                ),
-                const SizedBox(height: 16),
+              width: 350,
+              title: const Text('Login'),
+              child: ShadForm(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_showErrorAlert && _errorMessage != null)
+                      ShadAlert.destructive(
+                        iconData: LucideIcons.circleAlert,
+                        title: const Text('Error'),
+                        description: Text(_errorMessage!),
+                      ),
+                    if (_showErrorAlert && _errorMessage != null)
+                      const SizedBox(height: 16),
+                    ShadInputFormField(
+                      id: 'email',
+                      controller: _emailController,
+                      label: const Text('Email'),
+                      placeholder: const Text('Enter your email'),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    ShadInputFormField(
+                      id: 'password',
+                      controller: _passwordController,
+                      label: const Text('Password'),
+                      placeholder: const Text('Enter your password'),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    ShadButton(
+                      leading: _isLoading
+                          ? SizedBox.square(
+                              dimension: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: ShadTheme.of(
+                                  context,
+                                ).colorScheme.primaryForeground,
+                              ),
+                            )
+                          : const Icon(LucideIcons.mail),
+                      onPressed: _isLoading ? null : _handleLogin,
+                      child: Text(_isLoading ? 'Please wait' : 'Login'),
+                    ),
+                    const SizedBox(height: 16),
 
-                // TODO: Add "Forgot Password" functionality
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/signup');
-                  },
-                  child: const Text("Don't have an account? Sign up"),
+                    // TODO: Add "Forgot Password" functionality
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/signup');
+                      },
+                      child: const Text("Don't have an account? Sign up"),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
             ),
           ],
         ),
